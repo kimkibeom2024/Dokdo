@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import html2canvas from 'html2canvas';
 
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -82,39 +83,19 @@ const App: React.FC = () => {
     setSelectedCamera(event.target.value);
   };
 
-  const captureImage = () => {
+  const captureImage = async () => {
     if (!isCameraAccessGranted) {
       setCameraError('카메라 접근이 필요합니다.');
       return;
     }
 
-    if (!videoRef.current || !canvasRef.current) {
-      setCameraError('비디오 요소가 준비되지 않았습니다.');
-      return;
-    }
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    if (!context) {
-      setCameraError('캔버스 컨텍스트를 생성할 수 없습니다.');
-      return;
-    }
-
-    // 비디오가 실제로 재생 중인지 확인
-    if (video.readyState !== 4) {
-      setCameraError('비디오가 아직 준비되지 않았습니다.');
-      return;
-    }
-
     try {
-      // 캔버스 크기를 비디오 크기와 동일하게 설정
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      
-      // 비디오 프레임을 캔버스에 그리기
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // 전체 페이지를 캡처
+      const canvas = await html2canvas(document.body, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 1
+      });
       
       // PNG 형식으로 이미지 데이터 추출
       const imageData = canvas.toDataURL('image/png');
@@ -135,10 +116,10 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-amber-50">
       {/* Header */}
-      <div className="container mx-auto px-4 py-2">
+      <div className="container mx-auto px-2 sm:px-4 py-2">
         <div className="text-center py-2 relative">
-          <div className="flex justify-between items-center border-b border-gray-300 pb-1 mb-2">
-            <span className="text-xs text-gray-600">Busan IL Science High School</span>
+          <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-300 pb-1 mb-2">
+            <span className="text-xs text-gray-600 mb-2 sm:mb-0">Busan IL Science High School</span>
             <div className="flex items-center gap-2">
               {availableCameras.length > 0 && (
                 <select 
@@ -161,10 +142,10 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
-          <h1 className="text-4xl font-bold tracking-tighter"></h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tighter"></h1>
         </div>
         {/* Top News Banner */}
-        <div className="grid grid-cols-3 gap-4 my-4 border-b border-gray-300 pb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-4 border-b border-gray-300 pb-4">
           <div className="flex items-center">
             <div className="w-24 h-16 overflow-hidden mr-2">
               <img
@@ -210,13 +191,13 @@ const App: React.FC = () => {
         </div>
       </div>
       {/* Newspaper Title */}
-      <div className="container mx-auto text-center py-6 border-b border-gray-300">
-        <h1 className="text-6xl font-bold font-serif tracking-tighter">독도 신문</h1>
+      <div className="container mx-auto text-center py-4 sm:py-6 border-b border-gray-300">
+        <h1 className="text-4xl sm:text-6xl font-bold font-serif tracking-tighter">독도 신문</h1>
       </div>
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 grid grid-cols-3 gap-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
         {/* Left Column */}
-        <div className="border-r border-gray-300 pr-6">
+        <div className="border-b lg:border-b-0 lg:border-r border-gray-300 pb-6 lg:pb-0 lg:pr-6">
           <h2 className="text-2xl font-bold mb-4 font-serif">독도의용수비대 신규 단원</h2>
           <div className="mb-4">
             <div className="relative w-full h-48 bg-black rounded-lg overflow-hidden">
@@ -272,7 +253,7 @@ const App: React.FC = () => {
           </div>
         </div>
         {/* Middle Column */}
-        <div className="px-4">
+        <div className="px-0 sm:px-4">
           <div className="mb-6">
             <img
               src="https://readdy.ai/api/search-image?query=Beautiful%20aerial%20view%20of%20Dokdo%20island%20in%20Korea%2C%20showing%20the%20rocky%20islands%20surrounded%20by%20clear%20blue%20ocean%2C%20natural%20beauty%20with%20dramatic%20clouds%20and%20sunlight%2C%20high%20resolution%20photograph&width=400&height=300&seq=5&orientation=landscape"
@@ -301,7 +282,7 @@ const App: React.FC = () => {
           </div>
         </div>
         {/* Right Column */}
-        <div className="border-l border-gray-300 pl-6">
+        <div className="border-t lg:border-t-0 lg:border-l border-gray-300 pt-6 lg:pt-0 lg:pl-6">
           <h2 className="text-2xl font-bold mb-4 font-serif">독도 관련 최신 소식</h2>
           <div className="mb-6 pb-6 border-b border-gray-300">
             <h3 className="text-xl font-bold mb-2">독도 해양 생태계 보존 활동 확대</h3>
@@ -363,10 +344,10 @@ const App: React.FC = () => {
         </div>
       </div>
       {/* Bottom Section */}
-      <div className="container mx-auto px-4 py-8 border-t border-gray-300 mt-8">
-        <h2 className="text-3xl font-bold mb-6 font-serif text-center">조선의 영웅 안용복</h2>
-        <div className="flex">
-          <div className="w-1/3 pr-6">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 border-t border-gray-300 mt-4 sm:mt-8">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 font-serif text-center">조선의 영웅 안용복</h2>
+        <div className="flex flex-col sm:flex-row">
+          <div className="w-full sm:w-1/3 sm:pr-6 mb-4 sm:mb-0">
             <img
               src="https://readdy.ai/api/search-image?query=Historical%20Korean%20figure%20An%20Yong-bok%20in%20traditional%20Joseon%20dynasty%20clothing%2C%20standing%20proudly%20with%20documents%2C%20artistic%20portrait%20in%20traditional%20Korean%20painting%20style%20with%20neutral%20background&width=300&height=400&seq=7&orientation=portrait"
               alt="An Yong-bok"
@@ -374,7 +355,7 @@ const App: React.FC = () => {
             />
             <p className="text-sm text-gray-600 italic text-center mt-2">안용복 - 독도를 지킨 조선의 영웅</p>
           </div>
-          <div className="w-2/3">
+          <div className="w-full sm:w-2/3">
             <p className="text-lg mb-4">
               안용복(1663~1714)은 조선 후기의 어부이자 독도(당시 울릉도와 우산도로 불림)의 영유권을 지키기 위해 일본에 두 차례나 건너가 항의한 인물입니다. 그의 용기 있는 행동은 오늘날까지 독도가 한국 영토로 남을 수 있게 한 중요한 역사적 사건입니다.
             </p>
@@ -391,7 +372,7 @@ const App: React.FC = () => {
         </div>
       </div>
       {/* Footer */}
-      <footer className="container mx-auto px-4 py-6 border-t border-gray-300 mt-8 text-center text-sm text-gray-600">
+      <footer className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 border-t border-gray-300 mt-4 sm:mt-8 text-center text-xs sm:text-sm text-gray-600">
         <p>© 2025 독도 신문 | 모든 권리 보유 | 발행일: 2025년 4월 26일 토요일</p>
       </footer>
     </div>
