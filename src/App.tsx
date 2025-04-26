@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react'
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('');
   const [cameraError, setCameraError] = useState<string>('');
@@ -26,14 +25,18 @@ const App: React.FC = () => {
         setAvailableCameras(videoDevices);
         setSelectedCamera(videoDevices[0].deviceId);
         setIsCameraAccessGranted(true);
-      } catch (err) {
-        console.error('카메라 접근 오류:', err);
-        if (err.name === 'NotAllowedError') {
-          setCameraError('카메라 접근이 거부되었습니다. 브라우저 설정에서 카메라 권한을 허용해주세요.');
-        } else if (err.name === 'NotFoundError') {
-          setCameraError('사용 가능한 카메라를 찾을 수 없습니다.');
+      } catch (error) {
+        console.error('카메라 접근 오류:', error);
+        if (error instanceof Error) {
+          if (error.name === 'NotAllowedError') {
+            setCameraError('카메라 접근이 거부되었습니다. 브라우저 설정에서 카메라 권한을 허용해주세요.');
+          } else if (error.name === 'NotFoundError') {
+            setCameraError('사용 가능한 카메라를 찾을 수 없습니다.');
+          } else {
+            setCameraError('카메라 접근 중 오류가 발생했습니다.');
+          }
         } else {
-          setCameraError('카메라 접근 중 오류가 발생했습니다.');
+          setCameraError('알 수 없는 오류가 발생했습니다.');
         }
         setIsCameraAccessGranted(false);
       }
@@ -123,8 +126,6 @@ const App: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      setCapturedImage(imageData);
     } catch (error) {
       console.error('캡처 중 오류 발생:', error);
       setCameraError('이미지 캡처 중 오류가 발생했습니다.');
